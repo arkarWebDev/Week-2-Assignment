@@ -1,39 +1,59 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 function App() {
-  const [todos, setTodos] = useState([]);
+  const [id, setid] = useState("");
+  const [error, setError] = useState(false);
+  const [todo, setTodo] = useState(undefined);
 
-  useEffect((_) => {
-    fetchData();
-  }, []);
+  const getData = async (e) => {
+    e.preventDefault();
 
-  const fetchData = async () => {
-    const response = await fetch("https://jsonplaceholder.typicode.com/todos");
+    if (id < 1) {
+      setError(true);
+      setid("");
+      return;
+    }
+
+    const response = await fetch(
+      `https://jsonplaceholder.typicode.com/todos/${id}`
+    );
+
     const data = await response.json();
-    setTodos(data);
-    console.log(data);
+    setError(false);
+    setTodo(data);
+    setid("");
   };
 
   return (
     <section>
-      <table>
-        <thead>
-          <tr>
-            <th>id</th>
-            <th>title</th>
-            <th>completed</th>
-          </tr>
-        </thead>
-        <tbody>
-          {todos.map((todo) => (
-            <tr key={todo.id}>
-              <td>{todo.id}</td>
-              <td>{todo.title}</td>
-              {todo.completed ? <p>Done</p> : <p className="none">None</p>}
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <form onSubmit={getData}>
+        <input
+          type="number"
+          value={id}
+          onChange={(e) => {
+            setid(e.target.value);
+          }}
+        />
+        <button type="submit">Get Data</button>
+      </form>
+      <div>
+        {error && <h1>Please enter an vaild id. (example 1, 2, 3, etc ...)</h1>}
+        {todo && (
+          <div>
+            <h1>id - {todo.id}</h1>
+            <h1>title - {todo.title}</h1>
+            <h1>userID - {todo.userId}</h1>
+            <h1>
+              completed -{" "}
+              {todo.completed ? (
+                <span>Competed</span>
+              ) : (
+                <span>Not Completed</span>
+              )}
+            </h1>
+          </div>
+        )}
+      </div>
     </section>
   );
 }
